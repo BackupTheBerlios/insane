@@ -1,0 +1,85 @@
+Hi,
+
+also da ist das "portable" release von insaneFX.
+Jede datei mit windows-spezifischem Code erkennst du
+jetzt bereits am namen: xxxx_win.yyy, alles was nicht
+auf _win endet ist iso-c++. dateien die xxx_win.CPP
+heissen sehn immer so aus:
+
+------------------------------------------------------
+#ifdef _WIN32
+
+// windows code
+
+#endif
+------------------------------------------------------
+
+
+du schreibst einfach eine datei names xxx_linux.cpp, die
+so aussieht:
+
+------------------------------------------------------
+#ifdef _LINUX
+
+// same functions, but linux code
+
+#endif
+------------------------------------------------------
+
+dabei musst du natürlich exakt die gleichen funktionen
+wie im win-file implementieren, und schon kompilierts
+unter win und linux. 
+
+obiges trifft für dateien zu, wo das interface nicht
+win-spezifisch ist, die implementierung aber schon.
+bei klassen wo auch das interface win-code enthält,
+gibts noch extra header names xxx_win.H
+die datei xxx.h sieht so aus:
+
+------------------------------------------------------
+class fxIrgendwas
+	{
+
+	#ifdef _WIN32
+		include "xxx_win.h"
+	#endif
+
+	#ifdef _LINUX
+		include "xxx_linux.h"
+	#endif
+	
+	public:
+
+		// os-independant interface part
+	
+	};
+------------------------------------------------------
+
+
+du musst bei diesen classen also einen teil des
+interfaces und die zugehörigen implementierungen
+schreiben.
+
+im wesentlichen betrifft das folgende klassen:
+
+fxTimer (*)
+fxTexture (*, bmp-loading only)
+fxRenderWindow (#,*, NEW -> a window class for the renderer)
+fxRenderDevice (*, os-specific window creation, see fxRenderWindow)
+fxGL (#,* how to prepare a window for opengl under linux?)
+
+* = implementation
+# = interface
+
+so ich denke ma damit dürfte das portieren um einiges leichter
+werden...
+
+also theoretisch müsstest du dieses release bereits kompilieren
+können, nur der linker wird über nicht aufgelöste referenzen meckern
+(die fehlenden xxx_linux.* dateien).
+
+
+so viel spass damit
+
+achso, neu ist die datei insanefx.h, welche die compiler identifiziert.
+und das ganze produziert jetz eine dll/so datei.
